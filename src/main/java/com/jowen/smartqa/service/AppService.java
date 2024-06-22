@@ -8,8 +8,8 @@ import com.jowen.smartqa.model.entity.App;
 import com.jowen.smartqa.model.vo.AppVO;
 import org.springframework.validation.annotation.Validated;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 /**
  * 应用服务

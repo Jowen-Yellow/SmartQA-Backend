@@ -16,52 +16,36 @@ spring:
     timeout: 2592000
   # 数据库配置
   # todo 需替换配置
-  #  datasource:
-  #    driver-class-name: com.mysql.cj.jdbc.Driver
-  #    url: jdbc:mysql://${MYSQL_HOST}:3306/smartqa?serverTimezone=Asia/Shanghai
-  #    username: root
-  #    password: Mp081902618
-  shardingsphere:
-    datasource:
-      names: smartqa
-      smartqa:
-        type: com.zaxxer.hikari.HikariDataSource
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://${MYSQL_HOST}:3306/smartqa?serverTimezone=Asia/Shanghai
-        username: root
-        password: Mp081902618
-    rules:
-      sharding:
-        # 分表算法
-        sharding-algorithms:
-          # 自定义分表算法名称
-          answer-table-inline:
-            # 分表表达式，INLINE是直接在配置文件计算
-            type: INLINE
-            props:
-              algorithm-expression: user_answer_$->{appId % 2}
-        tables:
-          # 分表表名
-          user_answer:
-            actual-data-nodes: smartqa.user_answer_$->{0..1} # 一定要加数据库前缀
-            # 分表策略
-            table-strategy:
-              standard:
-                sharding-column: appId
-                sharding-algorithm-name: answer-table-inline
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:sharding.yaml
+
 
   # Redis 配置
   # todo 需替换配置，然后取消注释
-  redis:
-    database: 1
-    host: ${REDIS_HOST}
-    port: 6379
-    timeout: 5000
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+      database: 1
+      timeout: 5000
+      password: ${REDIS_PASSWORD}
+
+
+  #  redis:
+  #    database: 1
+  #    host: ${REDIS_HOST}
+  #    port: 6379
+  #    timeout: 5000
   # 文件上传
   servlet:
     multipart:
       # 大小限制
       max-file-size: 10MB
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      base-url: ${OPENAI_API_URL}
 server:
   address: 0.0.0.0
   port: 8101
@@ -70,7 +54,7 @@ server:
     # cookie 30 天过期
     session:
       cookie:
-        max-age: 2592000
+        max-age: 259200
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
@@ -100,6 +84,7 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.jowen.smartqa.controller
+
 
 zhipu:
   ai:

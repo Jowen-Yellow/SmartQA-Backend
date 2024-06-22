@@ -10,7 +10,7 @@ import com.jowen.smartqa.model.entity.PostThumb;
 import com.jowen.smartqa.model.entity.User;
 import com.jowen.smartqa.service.PostService;
 import com.jowen.smartqa.service.PostThumbService;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

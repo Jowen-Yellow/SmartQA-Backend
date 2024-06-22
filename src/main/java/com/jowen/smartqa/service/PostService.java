@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.jowen.smartqa.model.dto.post.PostQueryRequest;
 import com.jowen.smartqa.model.entity.Post;
 import com.jowen.smartqa.model.vo.PostVO;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 帖子服务

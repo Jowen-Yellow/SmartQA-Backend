@@ -22,14 +22,15 @@ import com.jowen.smartqa.service.QuestionService;
 import com.jowen.smartqa.service.UserService;
 import com.zhipu.oapi.service.v4.model.ModelData;
 import io.reactivex.Flowable;
+import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,6 +54,9 @@ public class QuestionController {
 
     @Resource
     private AppService appService;
+
+    @Resource
+    private Scheduler vipScheduler;
 
     // region 增删改查
 
@@ -323,7 +327,7 @@ public class QuestionController {
      * @return
      */
     @GetMapping("/ai_generate/sse")
-    public SseEmitter aiGenerateQuestionSSE(AiGenerateQuestionRequest aiGenerateQuestionRequest) {
+    public SseEmitter aiGenerateQuestionSSE(AiGenerateQuestionRequest aiGenerateQuestionRequest, boolean isVip) {
         ThrowUtils.throwIf(aiGenerateQuestionRequest == null, ErrorCode.PARAMS_ERROR);
 
         // 获取参数
@@ -345,7 +349,13 @@ public class QuestionController {
         Flowable<ModelData> modelDataFlowable = aiManager.doStreamRequest(GENERATE_QUESTION_SYSTEM_MESSAGE, userMessage, null);
         AtomicInteger count = new AtomicInteger(0);
         StringBuilder data = new StringBuilder();
-        modelDataFlowable.observeOn(Schedulers.io())
+
+        // 判断是vip用户还是普通用户
+//        User loginUser = userService.getLoginUser(request);
+//        Scheduler scheduler = UserConstant.ADMIN_ROLE.equals(loginUser.getUserRole()) ? vipScheduler : Schedulers.io();
+        Scheduler scheduler = UserConstant.ADMIN_ROLE.equals(isVip) ? vipScheduler : Schedulers.io();
+
+        modelDataFlowable.observeOn(scheduler)
                 .map(modelData -> modelData.getChoices().get(0).getDelta().getContent())
                 .map(content -> content.replaceAll("\\s", ""))
                 .flatMap(content -> {
@@ -362,6 +372,8 @@ public class QuestionController {
                     if (character.equals('}')) {
                         count.decrementAndGet();
                         if (count.get() == 0) {
+                            // 测试输出当前线程名称
+                            System.out.println(Thread.currentThread().getName());
                             sseEmitter.send(JSONUtil.toJsonStr(data.toString()));
                             // 清空
                             data.setLength(0);

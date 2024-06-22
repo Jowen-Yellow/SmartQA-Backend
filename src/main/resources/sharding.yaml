@@ -1,0 +1,33 @@
+dataSources:
+  smartqa:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://139.224.229.36:3306/smartqa?serverTimezone=Asia/Shanghai
+    username: root
+    password: Mp081902618
+
+rules:
+  - !SHARDING
+    tables:
+      # 分表表名
+      user_answer:
+        actualDataNodes: smartqa.user_answer_$->{0..1} # 一定要加数据库前缀
+        # 分表策略
+        tableStrategy:
+          standard:
+            shardingColumn: appId
+            shardingAlgorithmName: answer-table-inline
+    shardingAlgorithms:
+      # 自定义分表算法名称
+      answer-table-inline:
+        # 分表表达式，INLINE是直接在配置文件计算
+        type: INLINE
+        props:
+          algorithm-expression: user_answer_$->{appId % 2}
+  - !SINGLE
+    tables:
+      # 单表名
+      - smartqa.*
+
+props:
+  sql-show: true

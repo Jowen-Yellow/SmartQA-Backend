@@ -7,7 +7,7 @@ import com.jowen.smartqa.model.entity.User;
 import com.jowen.smartqa.model.vo.LoginUserVO;
 import com.jowen.smartqa.model.vo.UserVO;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 用户服务

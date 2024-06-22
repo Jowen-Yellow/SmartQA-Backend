@@ -14,18 +14,16 @@ import org.springframework.context.annotation.Configuration;
 public class RedissonConfig {
     private String host;
     private Integer port;
-    private String password;
     private Integer database;
     private Integer timeout;
 
-    @Bean
-    public RedissonClient redissonClient() {
-        Config config = new Config();
-        config.useSingleServer()
-                .setAddress("redis://" + host + ":" + port)
-                .setTimeout(timeout)
-                .setPassword(password)
-                .setDatabase(database);
-        return Redisson.create(config);
-    }
+//    @Bean
+//    public RedissonClient redissonClient() {
+//        Config config = new Config();
+//        config.useSingleServer()
+//                .setAddress("redis://" + host + ":" + port)
+//                .setTimeout(timeout)
+//                .setDatabase(database);
+//        return Redisson.create(config);
+//    }
 }
