@@ -1,10 +1,6 @@
 package com.jowen.smartqa.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
 import com.jowen.smartqa.validation.PredicateTrue;
 import com.jowen.smartqa.validators.AppPassPredicate;
 import com.jowen.smartqa.validators.AppPresentPredicate;
@@ -12,19 +8,22 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * 用户答题记录
+ *
  * @TableName user_answer
  */
-@TableName(value ="user_answer")
+@TableName(value = "user_answer")
 @Data
 public class UserAnswer implements Serializable {
     /**
-     * 
+     *
      */
     @TableId(type = IdType.ASSIGN_ID)
-    @NotNull(message = "id不能为空", groups = {Update.class})
+    @NotNull(message = "id不能为空", groups = {Create.class, Update.class})
     private Long id;
 
     /**
@@ -104,6 +103,7 @@ public class UserAnswer implements Serializable {
 
     public static interface Create {
     }
+
     public static interface Update {
     }
 }

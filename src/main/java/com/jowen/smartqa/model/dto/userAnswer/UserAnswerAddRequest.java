@@ -1,7 +1,5 @@
 package com.jowen.smartqa.model.dto.userAnswer;
 
-import com.jowen.smartqa.model.enums.AppScoringStrategyEnum;
-import com.jowen.smartqa.model.enums.AppTypeEnum;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,6 +13,10 @@ import java.util.List;
  */
 @Data
 public class UserAnswerAddRequest implements Serializable {
+    /**
+     * id
+     */
+    private Long id;
     /**
      * 应用 id
      */
