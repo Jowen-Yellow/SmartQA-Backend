@@ -21,9 +21,6 @@ public class AiGenerateQuestionVIPSSETests {
         request.setOptionNumber(2);
 
 
-        questionController.aiGenerateQuestionSSE(request, false);
-        questionController.aiGenerateQuestionSSE(request, true);
-
         ThreadUtil.sleep(1000 * 60 * 60 * 24);
     }
 }

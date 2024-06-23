@@ -20,17 +20,18 @@ import com.jowen.smartqa.model.vo.QuestionVO;
 import com.jowen.smartqa.service.AppService;
 import com.jowen.smartqa.service.QuestionService;
 import com.jowen.smartqa.service.UserService;
-import com.zhipu.oapi.service.v4.model.ModelData;
 import io.reactivex.Flowable;
-import io.reactivex.Scheduler;
-import io.reactivex.schedulers.Schedulers;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -310,7 +311,7 @@ public class QuestionController {
 
         // 生成用户消息
         String userMessage = getGenerateQuestionUserMessage(app, questionNumber, optionNumber);
-        String result = aiManager.doSyncUnstableRequest(GENERATE_QUESTION_SYSTEM_MESSAGE, userMessage);
+        String result = aiManager.doRequest(GENERATE_QUESTION_SYSTEM_MESSAGE, userMessage);
 
         // 截取json
         int start = result.indexOf("[");
@@ -327,7 +328,7 @@ public class QuestionController {
      * @return
      */
     @GetMapping("/ai_generate/sse")
-    public SseEmitter aiGenerateQuestionSSE(AiGenerateQuestionRequest aiGenerateQuestionRequest, boolean isVip) {
+    public SseEmitter aiGenerateQuestionSSE(AiGenerateQuestionRequest aiGenerateQuestionRequest, HttpServletRequest httpServletRequest) {
         ThrowUtils.throwIf(aiGenerateQuestionRequest == null, ErrorCode.PARAMS_ERROR);
 
         // 获取参数
@@ -346,17 +347,15 @@ public class QuestionController {
         SseEmitter sseEmitter = new SseEmitter();
 
         // 截取
-        Flowable<ModelData> modelDataFlowable = aiManager.doStreamRequest(GENERATE_QUESTION_SYSTEM_MESSAGE, userMessage, null);
+        Flux<String> resultFlux = aiManager.doStreamRequest(GENERATE_QUESTION_SYSTEM_MESSAGE, userMessage);
         AtomicInteger count = new AtomicInteger(0);
         StringBuilder data = new StringBuilder();
 
         // 判断是vip用户还是普通用户
-//        User loginUser = userService.getLoginUser(request);
-//        Scheduler scheduler = UserConstant.ADMIN_ROLE.equals(loginUser.getUserRole()) ? vipScheduler : Schedulers.io();
-        Scheduler scheduler = UserConstant.ADMIN_ROLE.equals(isVip) ? vipScheduler : Schedulers.io();
+        User loginUser = userService.getLoginUser(httpServletRequest);
+        Scheduler scheduler = UserConstant.ADMIN_ROLE.equals(loginUser.getUserRole()) ? vipScheduler : Schedulers.single();
 
-        modelDataFlowable.observeOn(scheduler)
-                .map(modelData -> modelData.getChoices().get(0).getDelta().getContent())
+        resultFlux.publishOn(scheduler)
                 .map(content -> content.replaceAll("\\s", ""))
                 .flatMap(content -> {
                     // 将String转换为List<Character>
@@ -372,9 +371,11 @@ public class QuestionController {
                     if (character.equals('}')) {
                         count.decrementAndGet();
                         if (count.get() == 0) {
-                            // 测试输出当前线程名称
-                            System.out.println(Thread.currentThread().getName());
-                            sseEmitter.send(JSONUtil.toJsonStr(data.toString()));
+                            try {
+                                sseEmitter.send(JSONUtil.toJsonStr(data.toString()));
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
                             // 清空
                             data.setLength(0);
                         }

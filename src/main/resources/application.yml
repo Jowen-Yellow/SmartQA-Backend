@@ -15,12 +15,9 @@ spring:
     # 30 天过期
     timeout: 2592000
   # 数据库配置
-  # todo 需替换配置
   datasource:
     driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
     url: jdbc:shardingsphere:classpath:sharding.yaml
-
-
   # Redis 配置
   # todo 需替换配置，然后取消注释
   data:
@@ -30,13 +27,6 @@ spring:
       database: 1
       timeout: 5000
       password: ${REDIS_PASSWORD}
-
-
-  #  redis:
-  #    database: 1
-  #    host: ${REDIS_HOST}
-  #    port: 6379
-  #    timeout: 5000
   # 文件上传
   servlet:
     multipart:
@@ -46,6 +36,9 @@ spring:
     openai:
       api-key: ${OPENAI_API_KEY}
       base-url: ${OPENAI_API_URL}
+      chat:
+        options:
+          model: gpt-3.5-turbo-0125
 server:
   address: 0.0.0.0
   port: 8101
@@ -66,7 +59,6 @@ mybatis-plus:
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
 
 # 对象存储
-# todo 需替换配置
 cos:
   client:
     accessKey: xxx
@@ -85,7 +77,3 @@ knife4j:
         api-rule-resources:
           - com.jowen.smartqa.controller
 
-
-zhipu:
-  ai:
-    apiKey: ${ZHIPU_AI_API_KEY}
