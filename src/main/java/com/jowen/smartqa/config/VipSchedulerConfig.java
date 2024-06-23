@@ -1,11 +1,11 @@
 package com.jowen.smartqa.config;
 
-import io.reactivex.Scheduler;
-import io.reactivex.schedulers.Schedulers;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,6 +30,6 @@ public class VipSchedulerConfig {
             }
         };
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10, threadFactory);
-        return Schedulers.from(executorService);
+        return Schedulers.fromExecutor(executorService);
     }
 }

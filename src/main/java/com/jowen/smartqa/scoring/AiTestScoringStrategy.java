@@ -20,6 +20,7 @@ import com.jowen.smartqa.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -30,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor
 public class AiTestScoringStrategy implements ScoringStrategy {
+    private final ChatClient chatClient;
     private final AiManager aiManager;
     private final QuestionService questionService;
     private final RedissonClient redissonClient;
@@ -117,7 +119,7 @@ public class AiTestScoringStrategy implements ScoringStrategy {
                 List<QuestionContentDTO> questionContentDTOList = questionVO.getQuestionContent();
                 String userMessage = getAiTestScoringUserMessage(app, questionContentDTOList, choices);
 
-                String result = aiManager.doSyncStableRequest(AI_TEST_SCORING_SYSTEM_MESSAGE, userMessage);
+                String result = aiManager.doRequest(AI_TEST_SCORING_SYSTEM_MESSAGE, userMessage);
 
                 int start = result.indexOf("{");
                 int end = result.lastIndexOf("}");
