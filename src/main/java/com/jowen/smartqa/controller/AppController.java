@@ -9,23 +9,26 @@ import com.jowen.smartqa.common.ResultUtils;
 import com.jowen.smartqa.constant.UserConstant;
 import com.jowen.smartqa.exception.BusinessException;
 import com.jowen.smartqa.exception.ThrowUtils;
+import com.jowen.smartqa.mapper.UserAnswerMapper;
 import com.jowen.smartqa.model.dto.app.AppAddRequest;
 import com.jowen.smartqa.model.dto.app.AppEditRequest;
 import com.jowen.smartqa.model.dto.app.AppQueryRequest;
 import com.jowen.smartqa.model.dto.app.AppUpdateRequest;
+import com.jowen.smartqa.model.dto.statistics.AppAnswerCountDTO;
+import com.jowen.smartqa.model.dto.statistics.AppAnswerResultCountDTO;
 import com.jowen.smartqa.model.entity.App;
 import com.jowen.smartqa.model.entity.User;
 import com.jowen.smartqa.model.enums.ReviewStatusEnum;
 import com.jowen.smartqa.model.vo.AppVO;
 import com.jowen.smartqa.service.AppService;
 import com.jowen.smartqa.service.UserService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
-import java.util.Objects;
+import java.util.List;
 
 /**
  * 应用接口
@@ -242,6 +245,4 @@ public class AppController {
     }
 
     // endregion
-
-
 }
