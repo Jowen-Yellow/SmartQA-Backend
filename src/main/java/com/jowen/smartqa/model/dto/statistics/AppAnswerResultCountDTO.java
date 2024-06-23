@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class AppAnswerResultCountDTO {
     private String resultName;
-    private String resultCount;
+    private Long resultCount;
 }
