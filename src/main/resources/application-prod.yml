@@ -4,13 +4,18 @@ server:
   port: 8101
   servlet:
     context-path: /api
+    # cookie 30 天过期
+    session:
+      cookie:
+        max-age: 259200
+        same-site: none
 spring:
   # 数据库配置
-#  datasource:
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/smartqa
-#    username: root
-#    password: 123456
+  #  datasource:
+  #    driver-class-name: com.mysql.cj.jdbc.Driver
+  #    url: jdbc:mysql://localhost:3306/smartqa
+  #    username: root
+  #    password: 123456
   # Redis 配置
   data:
     redis:
