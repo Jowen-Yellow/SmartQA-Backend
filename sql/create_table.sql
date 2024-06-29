@@ -76,7 +76,7 @@ create table if not exists scoring_result
 ) comment '评分结果' collate = utf8mb4_unicode_ci;
 
 -- 用户答题记录表
-create table if not exists user_answer
+create table if not exists user_answer_1
 (
     id              bigint auto_increment primary key,
     appId           bigint                             not null comment '应用 id',

@@ -8,6 +8,7 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
   # session 配置
   session:
     # todo 取消注释开启分布式 session（须先配置 Redis）
@@ -15,9 +16,9 @@ spring:
     # 30 天过期
     timeout: 2592000
   # 数据库配置
-#  datasource:
-#    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
-#    url: jdbc:shardingsphere:classpath:sharding.yaml
+  #  datasource:
+  #    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+  #    url: jdbc:shardingsphere:classpath:sharding.yaml
   # Redis 配置
   # todo 需替换配置，然后取消注释
   data:
@@ -58,13 +59,6 @@ mybatis-plus:
       logic-delete-value: 1 # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
 
-# 对象存储
-cos:
-  client:
-    accessKey: xxx
-    secretKey: xxx
-    region: xxx
-    bucket: xxx
 # 接口文档配置
 # springdoc-openapi项目访问访问地址: http://127.0.0.1:8080/doc.html
 springdoc:
@@ -101,3 +95,9 @@ sharding:
   host: ${MYSQL_HOST}
   password: ${MYSQL_PASSWORD}
   username: ${MYSQL_USERNAME}
+
+minio:
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  endpoint: ${MINIO_ENDPOINT}
+  bucket-name: ${MINIO_BUCKET_NAME}

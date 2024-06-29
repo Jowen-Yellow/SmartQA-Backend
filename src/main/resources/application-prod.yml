@@ -8,7 +8,6 @@ server:
     session:
       cookie:
         max-age: 259200
-        same-site: none
 spring:
   # 数据库配置
   #  datasource:
