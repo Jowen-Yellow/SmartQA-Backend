@@ -80,6 +80,7 @@ public class ShardingSphereConfig {
         smartQADataSource.setJdbcUrl("jdbc:mysql://" + host + ":3306/smartqa?useTimezone=true&serverTimezone=Asia/Shanghai");
         smartQADataSource.setUsername(username);
         smartQADataSource.setPassword(password);
+        smartQADataSource.setMaxLifetime(60000);
         dataSourceMap.put("smartqa", smartQADataSource);
         return dataSourceMap;
     }

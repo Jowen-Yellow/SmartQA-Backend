@@ -1,6 +1,8 @@
 package com.jowen.smartqa.controller;
 
 import cn.hutool.core.io.FileUtil;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.jowen.smartqa.common.BaseResponse;
 import com.jowen.smartqa.common.ErrorCode;
 import com.jowen.smartqa.common.ResultUtils;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 文件接口
@@ -32,11 +35,19 @@ public class FileController {
     @Resource
     private MinioManager minioManager;
 
+    private final long EXPIRE_TIME = 60L * 60 * 24;
+
+    private final Cache<String, String> fileUrlCache = Caffeine.newBuilder()
+            .initialCapacity(1024)
+            .expireAfterAccess(EXPIRE_TIME, TimeUnit.SECONDS)
+            .build();
+
+
     /**
      * 文件上传
      *
      * @param multipartFile
-     * @param uploadFileRequest
+     * @param biz
      * @param request
      * @return
      */
@@ -49,17 +60,24 @@ public class FileController {
         }
         validFile(multipartFile, fileUploadBizEnum);
         User loginUser = userService.getLoginUser(request);
-        if (loginUser == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
         // 文件目录：根据业务、用户来划分
         String uuid = RandomStringUtils.randomAlphanumeric(8);
         String filename = uuid + "-" + multipartFile.getOriginalFilename();
-        String filepath = String.format("/%s/%s/%s", fileUploadBizEnum.getValue(), loginUser.getId(), filename);
+        String filepath = String.format("%s/%s/%s", fileUploadBizEnum.getValue(), loginUser.getId(), filename);
         // 上传文件
         minioManager.uploadFile(filepath, multipartFile);
         // 返回可访问地址
-        return ResultUtils.success(filename);
+        return ResultUtils.success(filepath);
+    }
+
+    @GetMapping("/getFileUrl")
+    public BaseResponse<String> getFileUrl(@RequestParam("filePath") String filePath) {
+        if (fileUrlCache.getIfPresent(filePath) != null) {
+            return ResultUtils.success(fileUrlCache.getIfPresent(filePath));
+        }
+        String fileUrl = minioManager.getFileUrl(filePath);
+        fileUrlCache.put(filePath, fileUrl);
+        return ResultUtils.success(fileUrl);
     }
 
     /**
@@ -74,13 +92,24 @@ public class FileController {
         // 文件后缀
         String fileSuffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
         final long ONE_M = 1024 * 1024L;
-        if (FileUploadBizEnum.USER_AVATAR.equals(fileUploadBizEnum)) {
-            if (fileSize > ONE_M) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小不能超过 1M");
-            }
-            if (!Arrays.asList("jpeg", "jpg", "svg", "png", "webp").contains(fileSuffix)) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
-            }
+        final long FIVE_M = 5 * ONE_M;
+
+        switch (fileUploadBizEnum) {
+            case USER_AVATAR:
+                if (fileSize > ONE_M) {
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小不能超过 1M");
+                }
+                if (!Arrays.asList("jpeg", "jpg", "svg", "png", "webp").contains(fileSuffix)) {
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
+                }
+                break;
+            case APP_ICON:
+            case RESULT_PICTURE:
+                if (fileSize > FIVE_M) {
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小不能超过 5M");
+                }
+            default:
+                throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "业务类型不支持");
         }
     }
 }

@@ -19,6 +19,7 @@ public interface UserAnswerMapper extends BaseMapper<UserAnswer> {
     @Select("""
             select appId, count(*) as answerCount
             from user_answer
+            where isDelete != 1
             group by appId
             order by answerCount desc
             limit 5
@@ -28,7 +29,7 @@ public interface UserAnswerMapper extends BaseMapper<UserAnswer> {
     @Select("""
             select resultName, count(resultName) as resultCount
             from user_answer
-            where appId=#{appId}
+            where appId=#{appId} and isDelete != 1
             group by resultName
             order by resultCount desc
             """)

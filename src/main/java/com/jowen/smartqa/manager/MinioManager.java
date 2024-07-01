@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 /**
  * MinIO 管理
@@ -90,11 +91,13 @@ public class MinioManager {
      */
     public String getFileUrl(String objectName) {
         try {
+            int EXPIRE_TIME = 60 * 60 * 24;
             return minioClient.getPresignedObjectUrl(
                     io.minio.GetPresignedObjectUrlArgs.builder()
                             .bucket(bucketName)
                             .object(objectName)
                             .method(io.minio.http.Method.GET)
+                            .expiry(EXPIRE_TIME, TimeUnit.SECONDS)
                             .build());
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "文件不存在:" + e.getMessage());

@@ -23,13 +23,12 @@ import com.jowen.smartqa.scoring.ScoringStrategyExecutor;
 import com.jowen.smartqa.service.AppService;
 import com.jowen.smartqa.service.UserAnswerService;
 import com.jowen.smartqa.service.UserService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 用户答案接口
@@ -89,10 +88,12 @@ public class UserAnswerController {
         try {
             UserAnswer scoringAnswer = scoringStrategyExecutor.scoring(userAnswerAddRequest.getChoices(), app);
             scoringAnswer.setId(newUserAnswerId);
+            // 不能更新 ShardingSphere 分表字段
             scoringAnswer.setAppId(null);
             userAnswerService.updateById(scoringAnswer);
         } catch (Exception e) {
             e.printStackTrace();
+            userAnswerService.removeById(newUserAnswerId);
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "评分失败");
         }
         return ResultUtils.success(newUserAnswerId);

@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor
 public class AiTestScoringStrategy implements ScoringStrategy {
-    private final ChatClient chatClient;
     private final AiManager aiManager;
     private final QuestionService questionService;
     private final RedissonClient redissonClient;
@@ -46,20 +45,21 @@ public class AiTestScoringStrategy implements ScoringStrategy {
     /**
      * AI 评分系统消息
      */
-    private static final String AI_TEST_SCORING_SYSTEM_MESSAGE = "你是一位严谨的判题专家，我会给你如下信息：\n" +
-            "```\n" +
-            "应用名称，\n" +
-            "【【【应用描述】】】，\n" +
-            "题目和用户回答的列表：格式为 [{\"title\": \"题目\",\"answer\": \"用户回答\"}]\n" +
-            "```\n" +
-            "\n" +
-            "请你根据上述信息，按照以下步骤来对用户进行评价：\n" +
-            "1. 要求：需要给出一个明确的评价结果，包括评价名称（尽量简短）和评价描述（尽量详细，大于 200 字）\n" +
-            "2. 严格按照下面的 json 格式输出评价名称和评价描述\n" +
-            "```\n" +
-            "{\"resultName\": \"评价名称\", \"resultDesc\": \"评价描述\"}\n" +
-            "```\n" +
-            "3. 返回格式必须为 JSON 对象";
+    private static final String AI_TEST_SCORING_SYSTEM_MESSAGE = """
+            你是一位严谨的判题专家，我会给你如下信息：
+            ```
+            应用名称，
+            【【【应用描述】】】，
+            题目和用户回答的列表：格式为 [{"title": "题目","answer": "用户回答"}]
+            ```
+
+            请你根据上述信息，按照以下步骤来对用户进行评价：
+            1. 要求：需要给出一个明确的评价结果，包括评价名称（尽量简短）和评价描述（尽量详细，大于 200 字）
+            2. 严格按照下面的 json 格式输出评价名称和评价描述
+            ```
+            {"resultName": "评价名称", "resultDesc": "评价描述"}
+            ```
+            3. 返回格式必须为 JSON 对象""";
 
     /**
      * AI 评分用户消息封装
@@ -104,6 +104,7 @@ public class AiTestScoringStrategy implements ScoringStrategy {
             userAnswer.setScoringStrategy(getScoringStrategy().getValue());
             userAnswer.setAppType(getAppType().getValue());
             userAnswer.setChoices(choicesStr);
+            userAnswer.setResultPicture(app.getAppIcon());
 
             return userAnswer;
         }
@@ -130,6 +131,7 @@ public class AiTestScoringStrategy implements ScoringStrategy {
                 userAnswer.setScoringStrategy(getScoringStrategy().getValue());
                 userAnswer.setAppType(getAppType().getValue());
                 userAnswer.setChoices(choicesStr);
+                userAnswer.setResultPicture(app.getAppIcon());
 
                 // 如果缓存中不存在，则添加到缓存中
                 String jsonStr = JSONUtil.toJsonStr(userAnswer);

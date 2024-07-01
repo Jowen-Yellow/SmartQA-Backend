@@ -328,7 +328,7 @@ public class QuestionController {
      * @return
      */
     @GetMapping("/ai_generate/sse")
-    public SseEmitter aiGenerateQuestionSSE(AiGenerateQuestionRequest aiGenerateQuestionRequest, HttpServletRequest httpServletRequest) {
+    public SseEmitter aiGenerateQuestionSSE(AiGenerateQuestionRequest aiGenerateQuestionRequest) {
         ThrowUtils.throwIf(aiGenerateQuestionRequest == null, ErrorCode.PARAMS_ERROR);
 
         // 获取参数
@@ -352,10 +352,11 @@ public class QuestionController {
         StringBuilder data = new StringBuilder();
 
         // 判断是vip用户还是普通用户
-        User loginUser = userService.getLoginUser(httpServletRequest);
-        Scheduler scheduler = UserConstant.ADMIN_ROLE.equals(loginUser.getUserRole()) ? vipScheduler : Schedulers.single();
+//        User loginUser = userService.getLoginUser(httpServletRequest);
+//        Scheduler scheduler = UserConstant.ADMIN_ROLE.equals(loginUser.getUserRole()) ? vipScheduler : Schedulers.single();
+        Scheduler scheduler = vipScheduler;
 
-        resultFlux.publishOn(scheduler)
+        resultFlux.publishOn(Schedulers.boundedElastic())
                 .map(content -> content.replaceAll("\\s", ""))
                 .flatMap(content -> {
                     // 将String转换为List<Character>
