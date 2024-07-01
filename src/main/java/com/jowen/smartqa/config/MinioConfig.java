@@ -2,9 +2,12 @@ package com.jowen.smartqa.config;
 
 import io.minio.MinioClient;
 import lombok.Data;
+import okhttp3.HttpUrl;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Objects;
 
 @Data
 @Configuration
@@ -18,7 +21,7 @@ public class MinioConfig {
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
-                .endpoint(endpoint, 9000, false)
+                .endpoint(Objects.requireNonNull(HttpUrl.parse(endpoint)))
                 .credentials(accessKey, secretKey)
                 .build();
     }
