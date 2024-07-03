@@ -91,7 +91,7 @@ public class MinioManager {
      */
     public String getFileUrl(String objectName) {
         try {
-            int EXPIRE_DAY = 30;
+            int EXPIRE_DAY = 7;
             return minioClient.getPresignedObjectUrl(
                     io.minio.GetPresignedObjectUrlArgs.builder()
                             .bucket(bucketName)
