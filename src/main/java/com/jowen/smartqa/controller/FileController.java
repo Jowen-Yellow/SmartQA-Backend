@@ -35,11 +35,11 @@ public class FileController {
     @Resource
     private MinioManager minioManager;
 
-    private final long EXPIRE_TIME = 60L * 60 * 24;
+    private final long EXPIRE_DAY = 30;
 
     private final Cache<String, String> fileUrlCache = Caffeine.newBuilder()
             .initialCapacity(1024)
-            .expireAfterAccess(EXPIRE_TIME, TimeUnit.SECONDS)
+            .expireAfterWrite(EXPIRE_DAY, TimeUnit.DAYS)
             .build();
 
 

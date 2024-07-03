@@ -91,13 +91,13 @@ public class MinioManager {
      */
     public String getFileUrl(String objectName) {
         try {
-            int EXPIRE_TIME = 60 * 60 * 24;
+            int EXPIRE_DAY = 30;
             return minioClient.getPresignedObjectUrl(
                     io.minio.GetPresignedObjectUrlArgs.builder()
                             .bucket(bucketName)
                             .object(objectName)
                             .method(io.minio.http.Method.GET)
-                            .expiry(EXPIRE_TIME, TimeUnit.SECONDS)
+                            .expiry(EXPIRE_DAY, TimeUnit.DAYS)
                             .build());
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "文件不存在:" + e.getMessage());
